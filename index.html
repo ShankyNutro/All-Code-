@@ -1,0 +1,299 @@
+<!-- chemistic.html — PART 1 of multi-part build
+     Save this as chemistic.html, then request Part 2 for CSS.
+     This file is the master HTML shell: layout, panels, ARIA hooks, and script/style includes.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chemistic — Orvyn Scientific Deck</title>
+
+  <!-- Fira Mono for that hacker-sleek vibe -->
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Part 2 will provide chemistic.css (full styles + animations) -->
+  <link rel="stylesheet" href="chemistic.css" id="chemistic-css" />
+
+  <meta name="description" content="Chemistic — futuristic periodic table, terminal, molecular forge, and AI-assisted scientific deck by Orvyn." />
+</head>
+<body>
+
+  <!-- CINEMATIC INTRO -->
+  <div id="intro" class="introWrap" role="dialog" aria-labelledby="introTitle" aria-modal="true">
+    <div class="introInner">
+      <div class="sigil" id="sigil" aria-hidden="false">
+        <pre class="glyph" id="asciiLogo" aria-hidden="true" style="line-height:6px;font-size:9px;">
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                           ..:---====---::..                                        
+                                  .-*%@@@@@@@@@@@@@@@@@@@@@@@@@@@*=.                                
+                           .:-*@@%%#+-:.                .:-=*#%@@@@@@@@#=:..                        
+                        :=#%*+-.                                .:=*%@@@@@@%+:.                     
+                     :*%+:..                                        ..:=%@@@@@@#:                   
+                  .:%=.                  .......       ..........        .-%@@@@@@=.                
+                .:=.                  .:--:...:*+:. .-*=..      -           .+%@@@@@=.              
+               ...                  .::.       #@@#+@@@-                      .=@@@@@#:             
+               .                    -.     ... #@@@@@@@-                        .+@@@@%.            
+                                   -:   .-.  .-%@@@@@@@-                         .=@@@@%.           
+                                   =    -.     #@@@@@@@-............               =@@@@-           
+                                   =    ::     #@@@@@@@-...%@@@@%...                #@@@+           
+                                   .=    :=:.--#@@@@@@@-   %@@@@%.                  =@@@-           
+                                    .-.        #@@@@@@@-   %@@@@%.                  =@@#            
+                                     .-:.      #@%-:*@@-   %@@@@%.                  *@#.            
+                                       ..:---=-:..  ..:----#%%%%#.                 :@*.             
+                                                                                 .:%:               
+                                                                                ..:.                
+                                                                    
+                                                                                                    
+                                                                                        
+                                                                                                    
+                                                                                                    
+        </pre>
+        <div class="scanRing" id="scanRing" aria-hidden="true"></div>
+      </div>
+
+      <div class="bootCol" role="status" aria-live="polite">
+        <div class="bootTitle" id="introTitle">Initializing Chemistic — Orvyn Scientific Deck</div>
+        <pre id="bootLines" class="bootLines" aria-hidden="false"></pre>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+          <div class="tiles" id="tiles" role="list" aria-label="Intro choices">
+            <div class="tile" id="tileTerminal" role="button" tabindex="0" aria-pressed="false"><div class="tTitle">TERMINAL</div><div class="tSub">SpectraShell Console</div></div>
+            <div class="tile" id="tileAI" role="button" tabindex="0" aria-pressed="false"><div class="tTitle">AI</div><div class="tSub">Assistant</div></div>
+            <div class="tile" id="tileLabs" role="button" tabindex="0" aria-pressed="false"><div class="tTitle">LABS</div><div class="tSub">Molecular Forge</div></div>
+          </div>
+
+          <div class="bootControls">
+            <button class="skipBtn" id="skipIntro" aria-label="Skip intro">SKIP</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="app hidden" aria-hidden="true">
+    <!-- SIDEBAR / PERIODIC TABLE -->
+    <aside class="sidebar" role="navigation" aria-label="Periodic Table Sidebar">
+      <div class="brand">
+        <div class="logo">CHEMISTIC</div>
+        <div class="sub">by Orvyn Group</div>
+      </div>
+
+      <small class="small trademark">™ Orvyn Group · Cogitatio Causa Creationis</small>
+      <div class="hint">Commands: <code>search &lt;name|symbol|Z&gt;</code> · <code>cfg &lt;Z&gt;</code> · <code>labs &lt;H,O&gt;</code> · <code>ai &lt;prompt&gt;</code></div>
+
+      <div style="height:12px"></div>
+
+      <!-- Periodic table grid -->
+      <div class="table" id="ptable" role="grid" aria-label="Periodic table"></div>
+
+      <div style="height:12px"></div>
+      <div class="legend">Legend: valence = <span class="legend-valence">×</span>, core = <span class="legend-core">●</span></div>
+    </aside>
+
+    <!-- MAIN: Terminal | Panels -->
+    <main class="main" role="main">
+      <section class="terminalWrap" aria-label="Chemistic terminal and controls">
+        <div class="terminal" id="terminal" role="region" aria-label="Terminal window">
+          <div class="scanlines" aria-hidden="true"></div>
+          <div class="output" id="output" aria-live="polite" tabindex="0"></div>
+
+          <!-- Test Menu (element diagnostics & ascii animation) -->
+          <div id="testMenuWrap" class="testMenu" style="display:none" role="region" aria-label="Element diagnostics">
+            <div class="panel animBox" aria-hidden="false">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div id="panelTitle" style="font-weight:800;color:var(--neon-mag)">-- SELECTED --</div>
+                <div style="display:flex;gap:8px;align-items:center"><div class="status-led" id="led" aria-hidden="false"></div><div class="small">TEST ONLINE</div></div>
+              </div>
+
+              <div style="height:10px"></div>
+              <pre class="ascii-pre" id="asciiAnim" aria-hidden="false"></pre>
+              <div class="small" style="margin-top:8px;color:var(--muted)">Animated Bohr-style schematic — valence highlighted</div>
+              <div class="logo-watermark" aria-hidden="true">ORVYN</div>
+            </div>
+
+            <div class="panel" role="region" aria-label="Element info">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div id="ename" style="font-weight:700;color:var(--neon-cyan)">Select element</div>
+                <div class="small">Orvyn Diagnostics</div>
+              </div>
+
+              <div style="height:8px"></div>
+              <div class="kv"><strong>Atomic#</strong> <span id="znum">—</span></div>
+              <div class="kv"><strong>Symbol</strong> <span id="zsym">—</span></div>
+              <div class="kv"><strong>Config</strong> <div id="zcfg" style="color:var(--neon-mag);margin-top:6px"></div></div>
+              <div class="kv"><strong>Shells</strong> <span id="zshells">—</span></div>
+              <div class="kv"><strong>Valence</strong> <span id="zval">—</span></div>
+
+              <div class="controls">
+                <button class="btn" id="pauseBtn">PAUSE</button>
+                <button class="btn" id="copyBtn">COPY ASCII</button>
+                <button class="btn" id="exportBtn">EXPORT .TXT</button>
+              </div>
+
+              <div style="height:8px"></div>
+              <div class="small" id="notes" style="color:var(--muted)">Subshells & orbital info below.</div>
+              <div style="height:8px"></div>
+              <div id="subshells" style="color:var(--neon-mag);font-size:13px;word-break:break-word"></div>
+            </div>
+          </div>
+
+          <div class="footer" style="margin-top:12px">© Orvyn Group — Cogitatio Causa Creationis</div>
+        </div>
+
+        <!-- Right column panels (AI + quick help) -->
+        <aside style="width:420px" aria-label="Right panels">
+          <div class="panel" style="min-height:260px">
+            <div style="font-weight:700;color:var(--neon-mag)">Quick Help</div>
+            <div style="height:8px"></div>
+            <div class="small">Commands</div>
+            <div class="small" style="margin-top:6px;color:var(--muted)">
+              <strong>search &lt;name|symbol|Z&gt;</strong> — open Test Menu and animate selected.<br>
+              <strong>cfg &lt;Z&gt;</strong> — show orbital configuration in console.<br>
+              <strong>labs &lt;H,O&gt;</strong> — switch to Labs with elements.<br>
+              <strong>ai &lt;prompt&gt;</strong> — ask AI (requires server proxy recommended).<br>
+              <strong>clear</strong> — clear logs & stop animation.
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="panel aiPanel" aria-label="AI Assistant">
+            <div style="font-weight:700;color:var(--neon-cyan)">AI Assistant</div>
+            <div style="height:8px"></div>
+            <div>
+              <input id="aiInput" placeholder="Ask Chemistic..." aria-label="AI input" />
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <button class="btn" id="askBtn">ASK</button>
+                <button class="btn" id="clearAI">CLEAR</button>
+              </div>
+              <pre id="aiOutput" style="margin-top:10px;min-height:60px;background:#000;padding:8px;border-radius:8px;"></pre>
+              <small style="color:var(--muted)">Tip: For real requests use a server-side proxy to keep your key secret.</small>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <!-- COMMAND INPUT -->
+      <div class="inputBar" role="form" aria-label="Command input">
+        <div style="width:56px;color:var(--neon-mag);font-weight:700">USER</div>
+        <input id="cmd" placeholder='search neon | labs H,O | ai explain water' aria-label="Command" />
+        <button class="btn" id="runCmd" aria-label="Run command">ENTER</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- LABS v2 — Molecular Forge (Replace previous #labsPanel) -->
+<aside id="labsPanel" role="dialog" aria-label="Labs" style="display:none;">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div style="font-weight:900;color:var(--neon-mag);font-size:18px">LABS — Molecular Forge v2</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="labSave" class="btn" title="Export Compound">EXPORT</button>
+      <button id="closeLabs" class="btn">CLOSE</button>
+    </div>
+  </div>
+
+  <div style="height:12px"></div>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <!-- ELEMENT BANK (drag source) -->
+    <div id="elementBank" style="flex:0 0 220px;min-height:220px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:#070813;">
+      <div style="font-weight:700;color:var(--neon-cyan);margin-bottom:8px">Element Bank</div>
+      <div id="bankGrid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;max-height:320px;overflow:auto"></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px">Drag elements into the chamber or click to add.</div>
+    </div>
+
+    <!-- CHAMBER & CONTROLS -->
+    <div style="flex:1;min-width:420px">
+      <div id="chamber" style="height:220px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);background:linear-gradient(180deg,#00111a,#000);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+        <div id="chamberContent" style="text-align:center;color:var(--muted);">
+          <div style="font-weight:700;color:var(--neon-mag)">CHAMBER</div>
+          <div style="height:6px"></div>
+          <div id="chamberHint">Drop elements here</div>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+
+      <!-- sliders / toggles -->
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="flex:1">
+          <label class="small">Temperature: <span id="tempValue">298 K</span></label>
+          <input id="tempSlider" type="range" min="200" max="2000" value="298" />
+        </div>
+        <div style="flex:1">
+          <label class="small">Pressure: <span id="presValue">1 atm</span></label>
+          <input id="presSlider" type="range" min="0.1" max="100" step="0.1" value="1" />
+        </div>
+        <div style="width:140px;display:flex;flex-direction:column;gap:6px">
+          <label class="small">Catalyst</label>
+          <select id="catalystSelect" style="padding:6px;border-radius:8px;background:#02020a;color:var(--neon-cyan)">
+            <option value="none">None</option>
+            <option value="Pt">Platinum (Pt)</option>
+            <option value="Pd">Palladium (Pd)</option>
+            <option value="enzyme">Enzyme-like (fictional)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+
+      <!-- visualizer area -->
+      <div style="display:flex;gap:12px">
+        <div style="flex:1">
+          <div style="font-weight:700;color:var(--neon-cyan)">Molecule Visualizer</div>
+          <svg id="molSVG" width="100%" height="200" viewBox="0 0 600 200" style="background:#000;border-radius:8px;border:1px solid rgba(255,255,255,0.02)"></svg>
+        </div>
+
+        <div style="width:260px">
+          <div style="font-weight:700;color:var(--neon-mag)">Reaction Energy</div>
+          <canvas id="energyCanvas" width="240" height="120" style="background:#000;border-radius:8px;border:1px solid rgba(255,255,255,0.02)"></canvas>
+          <div style="height:8px"></div>
+          <div style="font-weight:700;color:var(--neon-cyan)">Verdict</div>
+          <div id="reactionVerdict" style="min-height:60px;padding:8px;border-radius:8px;background:#05040a;margin-top:6px;color:var(--neon-yellow);font-weight:700">No reaction yet</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div style="height:12px"></div>
+
+  <!-- results / card -->
+  <div style="display:flex;gap:12px">
+    <div style="flex:1">
+      <div style="font-weight:700;color:var(--neon-mag)">Compound Card</div>
+      <pre id="compoundCard" style="min-height:120px;padding:10px;background:#000;border-radius:8px;color:var(--neon-cyan)"></pre>
+    </div>
+
+    <div style="width:340px">
+      <div style="font-weight:700;color:var(--neon-cyan)">Environment Log</div>
+      <pre id="envLog" style="min-height:120px;padding:10px;background:#000;border-radius:8px;color:var(--muted);overflow:auto"></pre>
+    </div>
+  </div>
+
+  <div style="height:8px"></div>
+  <small style="color:var(--muted)">This module is a simulation & visualizer only. Do not use for real chemistry experiments. Hazardous combinations are flagged as warnings.</small>
+</aside>
+  <!-- END LABS -->
+
+  <!-- Load JS in parts: Part 3+ will provide chemistic.js (split across future parts) -->
+  <script src="chemistic.js" id="chemistic-js" defer></script>
+
+  <!-- Inline tiny bootstrap to prevent flashing if CSS missing -->
+  <style>
+    :root{--neon-cyan:#00f0d6;--neon-mag:#ff3bd6;--muted:#6b7280}
+    html,body{height:100%;margin:0;background:#04030a;color:var(--neon-cyan);font-family:"Fira Mono",monospace}
+    .hidden{display:none}
+    .btn{cursor:pointer}
+  </style>
+
+</body>
+</html>
